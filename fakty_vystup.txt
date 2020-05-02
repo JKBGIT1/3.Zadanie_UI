@@ -1,0 +1,25 @@
+Peter je rodic Jano
+Peter je rodic Vlado
+manzelia Peter Eva
+Vlado je rodic Maria
+Vlado je rodic Viera
+muz Peter
+muz Jano
+muz Vlado
+zena Eva
+Eva je rodic Jano
+Eva je rodic Vlado
+Peter je otec Jano
+Peter je otec Vlado
+Vlado je otec Maria
+Vlado je otec Viera
+Eva je matka Jano
+Eva je matka Vlado
+Jano a Vlado su surodenci
+Vlado a Jano su surodenci
+Maria a Viera su surodenci
+Viera a Maria su surodenci
+Jano je brat Vlado
+Vlado je brat Jano
+Jano je stryko Maria
+Jano je stryko Viera

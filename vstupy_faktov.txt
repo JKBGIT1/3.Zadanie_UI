@@ -25,3 +25,17 @@ muž Vlado
 žena Eva
 muž Stano
 žena Slavka
+
+Peter je rodic Jano
+Peter je rodic Vlado
+manzelia Peter Eva
+Vlado je rodic Maria
+Vlado je rodic Viera
+manzelia Slavka Vlado
+muz Peter
+muz Jano
+muz Vlado
+zena Slavka
+zena Maria
+zena Viera
+zena Eva
