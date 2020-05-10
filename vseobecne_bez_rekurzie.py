@@ -165,6 +165,13 @@ def vyskusajVsetkyOsoby(trebaVymenit, osobaMeno, pridaneOsoby, cisloPravidla, na
             pomocnaZlozena[cisloPodmienky] = pomocnaZlozena[cisloPodmienky].replace(trebaVymenit, osoba, 1)
             vytvorPodmienkyPravidla(osobaMeno, starePridaneOsoby, cisloPravidla, nazovPravidla, pomocnaZlozena, akcie, cisloPodmienky)
 
+
+def platnaElementarnaPodmienka(elementarnaPodmienka):
+    for fakt in pracovnaPamat:
+        if (elementarnaPodmienka == fakt):
+            return True
+    return False
+
 # !!! MOZNO BUDE TREBA ZMENIT PISMENKO X V PRAVIDLE SURODENCI NA PISMENKO Y
 def vytvorPodmienkyPravidla(osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidla, zlozenaPodmienka, akcie, cisloPodmienky):
     if (cisloPodmienky == len(zlozenaPodmienka)):
@@ -186,8 +193,8 @@ def vytvorPodmienkyPravidla(osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidl
                 else: # osoba uz bola pridana
                     vyskusajVsetkyOsoby(trebaVymenit, osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidla, zlozenaPodmienka, akcie, cisloPodmienky)
         else:
-            vytvorPodmienkyPravidla(osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidla, zlozenaPodmienka, akcie, cisloPodmienky + 1)
-
+            if (platnaElementarnaPodmienka(zlozenaPodmienka[cisloPodmienky])):
+                vytvorPodmienkyPravidla(osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidla, zlozenaPodmienka, akcie, cisloPodmienky + 1)
 
 def vytvorZoznamMoznychInstancii():
     # for osoba in osoby:
