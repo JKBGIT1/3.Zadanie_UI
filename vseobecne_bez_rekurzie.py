@@ -1,22 +1,16 @@
 import heapq
 import copy
 
-class PravidloAkcie:
-    def __init__(self, pridaj, vymaz, sprava):
-        self.pridaj = pridaj
-        self.vymaz = vymaz
-        self.sprava = sprava
-
-
 class Pravidlo:
-    def __init__(self, cisloPravidla,  nazov, podmienky, akcie, pridaneOsoby):
+    def __init__(self, cisloPravidla, nazov, podmienky, akcie):
         self.cisloPravidla = cisloPravidla
         self.nazov = nazov
         self.podmienky = podmienky
         self.akcie = akcie
-        self.pridaneOsoby = pridaneOsoby
     def __lt__(self, other):  # potrebna funkcia na porovnovanie v heape. ficura pythonu
         return self.cisloPravidla < other.cisloPravidla
+    def vymenZaOvplyvnujuceAkcie(self, akcie):
+        self.akcie = akcie
 
 
 class PridanaOsoba:
@@ -27,9 +21,9 @@ class PridanaOsoba:
 
 osoby = [] # vsetky osoby, ktore sa budu nachadzat vo faktoch pridam do tohto listu
 pracovnaPamat = [] # do tejto pamate sa na zaciatku nacitaju vsetky fakty, s ktorymi budem pracovat
-instanciePravidla = []
+instanciePravidla = [] # v tomto liste sa nachadzaju pravidla, ktorym podmienky platia a idem zistit, ci ich akcie ovplyvnia pracovnu pamat
+ovplyvniaPracovnuPamat = [] # toto je min halda, v ktorej sa budu nachadzat iba instancie pravidla, ktore ovplyvnia pracovnu pamat, su usporiadane podla cislaPravidla
 nacitanePravidla = [] # do tohto listu nacitam vsetky pravidla, ktore si reprezentujem classou
-rodinnePravidlaInstancie = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: []} # zoznam instancii aplikovatelnych pravidiel na rodinne vztahy
 
 def pridajRodicovskyFakt(line, splitnutyLine):
     rodicIndex = None
@@ -134,12 +128,12 @@ def nacitajPravidla():
         elif (pocitadloRiadkov == 3):
             akciePravidla = line[7:len(line) - 2]
         else:
-            nacitanePravidla.append(Pravidlo(cisloPravidla, nazovPravidla, podmienkyPravidla.replace("(", ""), akciePravidla.replace("(", ""), []))
+            nacitanePravidla.append(Pravidlo(cisloPravidla, nazovPravidla, podmienkyPravidla.replace("(", ""), akciePravidla.replace("(", "")))
             cisloPravidla = cisloPravidla + 1
             pocitadloRiadkov = 0
         pocitadloRiadkov = pocitadloRiadkov + 1
 
-    nacitanePravidla.append(Pravidlo(cisloPravidla, nazovPravidla, podmienkyPravidla.replace("(", ""), akciePravidla.replace("(", ""), []))
+    nacitanePravidla.append(Pravidlo(cisloPravidla, nazovPravidla, podmienkyPravidla.replace("(", ""), akciePravidla.replace("(", "")))
 
 
 def uzNahradenePismeno(pismenkoOsoby, pridaneOsoby):
@@ -157,8 +151,7 @@ def vyskusajVsetkyOsoby(trebaVymenit, osobaMeno, pridaneOsoby, cisloPravidla, na
         for pridanaOsoba in pomocnePridaneOsoby:
             if (osoba == pridanaOsoba.meno):  # bol pridany, takze znamena, ze uz ho nebudem pridavat
                 bolPridany = True
-        if (
-                bolPridany == False and osoba != osobaMeno):  # osoba, ktorej meno prechadzam v cykle este nie je v pridanych
+        if (bolPridany == False and osoba != osobaMeno):  # osoba, ktorej meno prechadzam v cykle este nie je v pridanych
             starePridaneOsoby.append(PridanaOsoba(trebaVymenit[1], osoba))
             pomocnePridaneOsoby.append(PridanaOsoba(trebaVymenit[1], osoba))
             pomocnaZlozena = copy.deepcopy(zlozenaPodmienka)
@@ -167,15 +160,33 @@ def vyskusajVsetkyOsoby(trebaVymenit, osobaMeno, pridaneOsoby, cisloPravidla, na
 
 
 def platnaElementarnaPodmienka(elementarnaPodmienka):
-    for fakt in pracovnaPamat:
-        if (elementarnaPodmienka == fakt):
+    # o to aby sa na kazde pismenko pridala ina osoba sa postara list pridaneOsoby vo vytvorPodmienkyPravidla
+    # takze vzdy ked sa nachadza v elementarnej podmienka znak nerovnosti, tak mozem vratit true, pretoze sa dosadene osoby nebudu rovnat
+    if (elementarnaPodmienka.find("<>") != -1):
+        return True
+    for fakt in pracovnaPamat: # ak sa nejedna o znak nerovnosti, tak musim prehladat pracovnu pamat aby som zistil, ci je elementarna podmienka pravdiva
+        if (elementarnaPodmienka == fakt): # ak sa podmienka v pracovnej pamati nachadza, tak je fakt, teda vratim True
             return True
-    return False
+    return False # presiel som celu pracovnu pamat, ale elementarnu podmienku som vo faktoch nenasiel, takze vratim False
+
+
+def naviazAkcie(akcie, pridaneOsoby):
+    naviazaneAkcie = []
+    for akcia in akcie:
+        while(akcia.find("?") != -1):
+            trebaVymenit = "?" + akcia[akcia.find("?") + 1]
+            for pridanaOsoba in pridaneOsoby:
+                if (trebaVymenit[1] == pridanaOsoba.pismenko):
+                    akcia = akcia.replace(trebaVymenit, pridanaOsoba.meno, 1)
+                    break
+        naviazaneAkcie.append(akcia)
+    return naviazaneAkcie
+
 
 # !!! MOZNO BUDE TREBA ZMENIT PISMENKO X V PRAVIDLE SURODENCI NA PISMENKO Y
 def vytvorPodmienkyPravidla(osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidla, zlozenaPodmienka, akcie, cisloPodmienky):
     if (cisloPodmienky == len(zlozenaPodmienka)):
-        vytvorenePravidlo = Pravidlo(cisloPravidla, nazovPravidla, zlozenaPodmienka, akcie, pridaneOsoby)
+        vytvorenePravidlo = Pravidlo(cisloPravidla, nazovPravidla, zlozenaPodmienka, naviazAkcie(akcie, pridaneOsoby))
         instanciePravidla.append(vytvorenePravidlo)
     else:
         if (zlozenaPodmienka[cisloPodmienky].find("?") != -1):
@@ -196,32 +207,13 @@ def vytvorPodmienkyPravidla(osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidl
             if (platnaElementarnaPodmienka(zlozenaPodmienka[cisloPodmienky])):
                 vytvorPodmienkyPravidla(osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidla, zlozenaPodmienka, akcie, cisloPodmienky + 1)
 
+
 def vytvorZoznamMoznychInstancii():
-    # for osoba in osoby:
+    for osoba in osoby:
         for pravidlo in nacitanePravidla:
             zlozenaPodmienka = pravidlo.podmienky.split(")")[:len(pravidlo.podmienky.split(")")) - 1]
             splitnuteAkcie = pravidlo.akcie.split(")")[:len(pravidlo.akcie.split(")")) - 1]
-            vytvorPodmienkyPravidla(osoby[0], [], pravidlo.cisloPravidla, pravidlo.nazov, zlozenaPodmienka, splitnuteAkcie, 0)
-
-
-def zistiDosadenie(pismenkoOsoby, instanciaPravidla):
-    for pridanaOsoba in instanciaPravidla.pridaneOsoby:
-        if (pismenkoOsoby == pridanaOsoba.pismenko):
-            return pridanaOsoba.meno
-
-
-def vytvorAkciu(akcia, instanciaPravidla):
-    vytvorenaAkcia = ""
-    for slovo in akcia.split()[1:]:
-        if (slovo[0] == "?"):
-            vytvorenaAkcia = vytvorenaAkcia + zistiDosadenie(slovo[1], instanciaPravidla) + " "
-        else:
-            vytvorenaAkcia = vytvorenaAkcia + slovo + " "
-
-    if (vytvorenaAkcia[len(vytvorenaAkcia) - 1] == " "):
-        return vytvorenaAkcia[:len(vytvorenaAkcia) - 1]
-    else:
-        return vytvorenaAkcia
+            vytvorPodmienkyPravidla(osoba, [], pravidlo.cisloPravidla, pravidlo.nazov, zlozenaPodmienka, splitnuteAkcie, 0)
 
 
 def zistiOvplyvneniePridajVykonaj(pridajAkcia):
@@ -242,51 +234,60 @@ def zistiOvplyvnenieZmazVykonaj(zmazAkcia):
     return False
 
 
-def akOvplyvniaVykonajAkcie(instanciaPravidla):
+def zistiOvplyvnujuceAkcie(instanciaPravidla):
     spravy = []
-    ovplyvnenie = False
+    ovplyvnujuceAkcie = []
     for akcia in instanciaPravidla.akcie:
+        ovplyvnenie = False
         if (akcia.split()[0] == "pridaj"):
-            vytvorenaAkcia = vytvorAkciu(akcia, instanciaPravidla)
-            ovplyvnenie = zistiOvplyvneniePridajVykonaj(vytvorenaAkcia)
+            ovplyvnenie = zistiOvplyvneniePridajVykonaj(akcia)
         elif (akcia.split()[0] == "vymaz"):
-            vytvorenaAkcia = vytvorAkciu(akcia, instanciaPravidla)
-            ovplyvnenie = zistiOvplyvnenieZmazVykonaj(vytvorenaAkcia)
+            ovplyvnenie = zistiOvplyvnenieZmazVykonaj(akcia)
         elif (akcia.split()[0] == "sprava"):
-            spravy.append(vytvorAkciu(akcia, instanciaPravidla))
+            spravy.append(akcia)
 
-    if (ovplyvnenie):
+        if (ovplyvnenie):
+            ovplyvnujuceAkcie.append(akcia)
+
+    if (len(ovplyvnujuceAkcie) > 0):
         for sprava in spravy:
-            print(sprava)
+            ovplyvnujuceAkcie.append(sprava)
+        return ovplyvnujuceAkcie
+
+    return ovplyvnujuceAkcie
+
+
+def akOvplyvniaPridajDoHaldy():
+    for instanciaPravidla in instanciePravidla: # prebehnem vsetky vytvorene instancie pravidiel
+        ovplyvnujuceAkcie = zistiOvplyvnujuceAkcie(instanciaPravidla)
+        # ak existuje aspon jedna akcia pridaj alebo zmaz, ktora ovplyvni pracovnu pamat,
+        # tak bude vratena v liste ovplyvnujuceAkcie spolocne so vsetkymi spravami, vytvorenej instancie pravidla
+        if(len(ovplyvnujuceAkcie) > 0):
+            instanciaPravidla.vymenZaOvplyvnujuceAkcie(ovplyvnujuceAkcie) # nahradim vsetky akcie pravidla iba tymi, ktore ovplyvnia pracovnu pamat
+            heapq.heappush(ovplyvniaPracovnuPamat, instanciaPravidla) # do min haldy vhodim instanciu pravidla uz iba s akciami, ktore ovplyvnia pracovnu pamat
+
+
+def vykonajAkciu(akcia):
+    novaAkcia = ""
+    if (akcia.split()[0] == "sprava"):
+        print(akcia.split()[1:len(akcia.split()) - 1])
+    elif (akcia.split()[0] == "pridaj"):
+        for slovo in akcia.split()[1:len(akcia.split()) - 1]: # tuto spravne funguje vytvorenie akcie, s ktorou sa ma nieco spravit
+            novaAkcia = novaAkcia + " " + slovo
+        print(novaAkcia[1:])
+    elif (akcia.split()[0] == "vymaz"):
+        novaAkcia = akcia.split()[1:len(akcia.split()) - 1]
+        print(novaAkcia)
+
+
+def vykonajAkcieJednejInstanciePravidla():
+    try:
+        vytiahnutaInstancia = heapq.heappop(ovplyvniaPracovnuPamat)
+        for akcia in vytiahnutaInstancia.akcie:
+            vykonajAkciu(akcia)
         return True
-
-    return False
-
-
-def zistiCiPlatnaPodmienka(instanciaPravidla):
-    print(instanciaPravidla.podmienky)
-    for podmienka in instanciaPravidla.podmienky:
-        platiPodmienka = False
-        for fakt in pracovnaPamat:
-            if (podmienka == fakt):
-                platiPodmienka = True
-        if (platiPodmienka == False):
-            return False
-
-    if(akOvplyvniaVykonajAkcie(instanciaPravidla)):
-        return True
-    else:
+    except IndexError:
         return False
-
-
-# def vykonajAkciePlatnehoPravidla():
-#     while (True):
-#         try:
-#             vytiahnutaInstancia = heapq.heappop(minHeapPravidla)
-#             if (zistiCiPlatnaPodmienka(vytiahnutaInstancia)):
-#                break
-#         except IndexError:
-#             break
 
 
 nacitajFakty()
@@ -295,6 +296,9 @@ vytvorZoznamMoznychInstancii()
 for instancia in instanciePravidla:
     print(instancia.nazov, end=" ")
     print(instancia.podmienky)
+    print(instancia.akcie)
+akOvplyvniaPridajDoHaldy()
+vykonajAkcieJednejInstanciePravidla()
     # for pridanaOsoba in instancia.pridaneOsoby:
     #     print(pridanaOsoba.pismenko + " " + pridanaOsoba.meno)
 # vykonajAkciePlatnehoPravidla()
