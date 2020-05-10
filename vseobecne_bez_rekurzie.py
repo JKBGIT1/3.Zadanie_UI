@@ -216,19 +216,27 @@ def vytvorZoznamMoznychInstancii():
             vytvorPodmienkyPravidla(osoba, [], pravidlo.cisloPravidla, pravidlo.nazov, zlozenaPodmienka, splitnuteAkcie, 0)
 
 
+def vytvorKonecnuAkciu(akcia):
+    novaAkcia = ""
+    for slovo in akcia.split()[1:len(akcia.split())]:  # tuto spravne funguje vytvorenie akcie, s ktorou sa ma nieco spravit
+        novaAkcia = novaAkcia + " " + slovo
+    return novaAkcia[1:]
+
+
+
 def zistiOvplyvneniePridajVykonaj(pridajAkcia):
+    spravnyTvarAkcie = vytvorKonecnuAkciu(pridajAkcia)
     for fakt in pracovnaPamat:
-        if (fakt == pridajAkcia):
+        if (fakt == spravnyTvarAkcie):
             return False
 
-    pracovnaPamat.append(pridajAkcia)
     return True
 
 
 def zistiOvplyvnenieZmazVykonaj(zmazAkcia):
+    spravnyTvarAkcie = vytvorKonecnuAkciu(zmazAkcia)
     for fakt in pracovnaPamat:
-        if (fakt == zmazAkcia):
-            pracovnaPamat.remove(zmazAkcia)
+        if (fakt == spravnyTvarAkcie):
             return True
 
     return False
@@ -268,16 +276,12 @@ def akOvplyvniaPridajDoHaldy():
 
 
 def vykonajAkciu(akcia):
-    novaAkcia = ""
     if (akcia.split()[0] == "sprava"):
-        print(akcia.split()[1:len(akcia.split()) - 1])
+        print(vytvorKonecnuAkciu(akcia))
     elif (akcia.split()[0] == "pridaj"):
-        for slovo in akcia.split()[1:len(akcia.split()) - 1]: # tuto spravne funguje vytvorenie akcie, s ktorou sa ma nieco spravit
-            novaAkcia = novaAkcia + " " + slovo
-        print(novaAkcia[1:])
+        pracovnaPamat.append(vytvorKonecnuAkciu(akcia))
     elif (akcia.split()[0] == "vymaz"):
-        novaAkcia = akcia.split()[1:len(akcia.split()) - 1]
-        print(novaAkcia)
+        pracovnaPamat.remove(vytvorKonecnuAkciu(akcia))
 
 
 def vykonajAkcieJednejInstanciePravidla():
@@ -292,35 +296,17 @@ def vykonajAkcieJednejInstanciePravidla():
 
 nacitajFakty()
 nacitajPravidla()
-vytvorZoznamMoznychInstancii()
-for instancia in instanciePravidla:
-    print(instancia.nazov, end=" ")
-    print(instancia.podmienky)
-    print(instancia.akcie)
-akOvplyvniaPridajDoHaldy()
-vykonajAkcieJednejInstanciePravidla()
-    # for pridanaOsoba in instancia.pridaneOsoby:
-    #     print(pridanaOsoba.pismenko + " " + pridanaOsoba.meno)
-# vykonajAkciePlatnehoPravidla()
-# for fakt in pracovnaPamat:
-#     print(fakt)
-# for pravidlo in pravidla:
-#     print(pravidlo.cisloPravidla)
-#     print(pravidlo.nazov)
-#     print(pravidlo.podmienky)
-#     print(pravidlo.akcie)
+pocet = 1
+prebehloOvplyvnenie = True
+while(prebehloOvplyvnenie):
+    vytvorZoznamMoznychInstancii()
+    akOvplyvniaPridajDoHaldy()
+    prebehloOvplyvnenie = vykonajAkcieJednejInstanciePravidla()
+    ovplyvniaPracovnuPamat.clear()
 
-# vykonane = True
-# while(vykonane):
-#     vykonane = False
-#     for i in range(len(osoby)):
-#         vytvorZoznamAplikovatelnychInstanciiPravidiel(osoby[i])
-#     vyfilTrujPravidla()
-#     zapisPravidloDoPracovnejPamati()
-#
-# file = open("fakty_vystup.txt", "w")
-# for fakt in pracovnaPamat:
-#     file.write(fakt)
+file = open("fakty_vystup.txt", "w")
+for fakt in pracovnaPamat:
+    file.write(fakt + "\n")
 
 
 
