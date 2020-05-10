@@ -1,4 +1,5 @@
 import heapq
+import copy
 
 class PravidloAkcie:
     def __init__(self, pridaj, vymaz, sprava):
@@ -145,23 +146,24 @@ def uzNahradenePismeno(pismenkoOsoby, pridaneOsoby):
     for i in range(len(pridaneOsoby)):
         if (pridaneOsoby[i].pismenko == pismenkoOsoby):
             return i
-
     return -1
 
 
-# def jeTamOtaznik(osoba, podmienka, pridaneOsoby, zlozenaPodmienka):
-#     if (podmienka.find("?") != -1):
-#         trebaVymenit = "?"
-#
-#
-#
-# def vytvorPodmienkyPravidla(osoba, pridaneOsoby, zlozenaPodmienka):
-#     for podmienka in zlozenaPodmienka:
-#         if (podmienka.find("<>") == -1): # ak sa nejedna o to, ci su nejake osoby rozne, tak bude dosadzat mena do podmienky
-#             jeTamOtaznik(osoba, podmienka, pridaneOsoby, zlozenaPodmienka)
-#             trebaVymenit = "?" + podmienka[podmienka.find("?") + 1]
-#             if (trebaVymenit[1] == "X"):
-
+def vyskusajVsetkyOsoby(trebaVymenit, osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidla, zlozenaPodmienka, akcie, cisloPodmienky):
+    pomocnePridaneOsoby = copy.deepcopy(pridaneOsoby)
+    for osoba in osoby:
+        bolPridany = False
+        starePridaneOsoby = copy.deepcopy(pridaneOsoby)
+        for pridanaOsoba in pomocnePridaneOsoby:
+            if (osoba == pridanaOsoba.meno):  # bol pridany, takze znamena, ze uz ho nebudem pridavat
+                bolPridany = True
+        if (
+                bolPridany == False and osoba != osobaMeno):  # osoba, ktorej meno prechadzam v cykle este nie je v pridanych
+            starePridaneOsoby.append(PridanaOsoba(trebaVymenit[1], osoba))
+            pomocnePridaneOsoby.append(PridanaOsoba(trebaVymenit[1], osoba))
+            pomocnaZlozena = copy.deepcopy(zlozenaPodmienka)
+            pomocnaZlozena[cisloPodmienky] = pomocnaZlozena[cisloPodmienky].replace(trebaVymenit, osoba, 1)
+            vytvorPodmienkyPravidla(osobaMeno, starePridaneOsoby, cisloPravidla, nazovPravidla, pomocnaZlozena, akcie, cisloPodmienky)
 
 # !!! MOZNO BUDE TREBA ZMENIT PISMENKO X V PRAVIDLE SURODENCI NA PISMENKO Y
 def vytvorPodmienkyPravidla(osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidla, zlozenaPodmienka, akcie, cisloPodmienky):
@@ -170,29 +172,19 @@ def vytvorPodmienkyPravidla(osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidl
         instanciePravidla.append(vytvorenePravidlo)
     else:
         if (zlozenaPodmienka[cisloPodmienky].find("?") != -1):
-            trebaVymenit = "?" + zlozenaPodmienka[cisloPodmienky][
-                zlozenaPodmienka[cisloPodmienky].find("?") + 1]  # nacitam otaznik a pismenko za nim
-            if (trebaVymenit[1] == "X"):  # ak je pismenko X, tak budem nahradzat meno v premenej osoba
+            trebaVymenit = "?" + zlozenaPodmienka[cisloPodmienky][zlozenaPodmienka[cisloPodmienky].find("?") + 1] # nacitam otaznik a pismenko za nim
+            if (trebaVymenit[1] == "X"): # ak je pismenko X, tak budem nahradzat meno v premenej osoba
                 zlozenaPodmienka[cisloPodmienky] = zlozenaPodmienka[cisloPodmienky].replace(trebaVymenit, osobaMeno, 1)
-                if (uzNahradenePismeno(trebaVymenit[1], pridaneOsoby) == -1):  # osoba uz bola pridana
+                if (uzNahradenePismeno(trebaVymenit[1], pridaneOsoby) == -1): # osoba uz bola pridana
                     pridaneOsoby.append(PridanaOsoba(trebaVymenit[1], osobaMeno))
                 vytvorPodmienkyPravidla(osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidla, zlozenaPodmienka, akcie, cisloPodmienky)
-            else:  # inak bude nahradzat meno, ktore este nie je pridane
+            else: # inak bude nahradzat meno, ktore este nie je pridane
                 indexPridaneho = uzNahradenePismeno(trebaVymenit[1], pridaneOsoby)
-                if (indexPridaneho != -1):  # osoba uz bola pridana
+                if (indexPridaneho != -1): # osoba uz bola pridana
                     zlozenaPodmienka[cisloPodmienky] = zlozenaPodmienka[cisloPodmienky].replace(trebaVymenit, pridaneOsoby[indexPridaneho].meno, 1)  # osoba uz bola pridana, takze ju nebudem davat do listu
-                    vytvorPodmienkyPravidla(osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidla, zlozenaPodmienka,
-                                            akcie, cisloPodmienky)
-                else:  # osoba uz bola pridana
-                    for osoba in osoby:
-                        bolPridany = False
-                        for pridanaOsoba in pridaneOsoby:
-                            if (osoba == pridanaOsoba.meno):  # bol pridany, takze znamena, ze uz ho nebudem pridavat
-                                bolPridany = True
-                        if (bolPridany == False and osoba != osobaMeno):  # osoba, ktorej meno prechadzam v cykle este nie je v pridanych
-                            pridaneOsoby.append(PridanaOsoba(trebaVymenit[1], osoba))
-                            zlozenaPodmienka[cisloPodmienky] = zlozenaPodmienka[cisloPodmienky].replace(trebaVymenit, osoba)
-                            vytvorPodmienkyPravidla(osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidla, zlozenaPodmienka, akcie, cisloPodmienky)
+                    vytvorPodmienkyPravidla(osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidla, zlozenaPodmienka, akcie, cisloPodmienky)
+                else: # osoba uz bola pridana
+                    vyskusajVsetkyOsoby(trebaVymenit, osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidla, zlozenaPodmienka, akcie, cisloPodmienky)
         else:
             vytvorPodmienkyPravidla(osobaMeno, pridaneOsoby, cisloPravidla, nazovPravidla, zlozenaPodmienka, akcie, cisloPodmienky + 1)
 
@@ -280,21 +272,24 @@ def zistiCiPlatnaPodmienka(instanciaPravidla):
         return False
 
 
-def vykonajAkciePlatnehoPravidla():
-    while (True):
-        try:
-            vytiahnutaInstancia = heapq.heappop(minHeapPravidla)
-            if (zistiCiPlatnaPodmienka(vytiahnutaInstancia)):
-               break
-        except IndexError:
-            break
+# def vykonajAkciePlatnehoPravidla():
+#     while (True):
+#         try:
+#             vytiahnutaInstancia = heapq.heappop(minHeapPravidla)
+#             if (zistiCiPlatnaPodmienka(vytiahnutaInstancia)):
+#                break
+#         except IndexError:
+#             break
 
 
 nacitajFakty()
 nacitajPravidla()
 vytvorZoznamMoznychInstancii()
 for instancia in instanciePravidla:
+    print(instancia.nazov, end=" ")
     print(instancia.podmienky)
+    # for pridanaOsoba in instancia.pridaneOsoby:
+    #     print(pridanaOsoba.pismenko + " " + pridanaOsoba.meno)
 # vykonajAkciePlatnehoPravidla()
 # for fakt in pracovnaPamat:
 #     print(fakt)
