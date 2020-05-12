@@ -21,5 +21,7 @@ Maria a Viera su surodenci
 Viera a Maria su surodenci
 Jano je brat Vlado
 Vlado je brat Jano
+Maria je sestra Viera
+Viera je sestra Maria
 Jano je stryko Maria
 Jano je stryko Viera

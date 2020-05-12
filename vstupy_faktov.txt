@@ -10,21 +10,21 @@ zena Maria
 zena Viera
 zena Eva
 
-Peter je rodič Jano
-Peter je rodič Vlado
-manželia Peter Eva
-Stano je rodič Eva
-manželia Stano Slavka
-Vlado je rodič Maria
-Vlado je rodič Viera
-muž Peter
-muž Jano
-muž Vlado
-žena Maria
-žena Viera
-žena Eva
-muž Stano
-žena Slavka
+Peter je rodic Jano
+Peter je rodic Vlado
+manzelia Peter Eva
+Stano je rodic Eva
+manzelia Stano Slavka
+Vlado je rodic Maria
+Vlado je rodic Viera
+muz Peter
+muz Jano
+muz Vlado
+zena Maria
+zena Viera
+zena Eva
+muz Stano
+zena Slavka
 
 Peter je rodic Jano
 Peter je rodic Vlado
