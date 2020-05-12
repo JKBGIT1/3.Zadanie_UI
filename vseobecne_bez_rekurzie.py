@@ -134,6 +134,7 @@ def nacitajPravidla():
         pocitadloRiadkov = pocitadloRiadkov + 1
 
     nacitanePravidla.append(Pravidlo(cisloPravidla, nazovPravidla, podmienkyPravidla.replace("(", ""), akciePravidla.replace("(", "")))
+    file.close()
 
 
 def uzNahradenePismeno(pismenkoOsoby, pridaneOsoby):
@@ -296,17 +297,28 @@ def vykonajAkcieJednejInstanciePravidla():
 
 nacitajFakty()
 nacitajPravidla()
+
 pocet = 1
+postupVykonania = ""
 prebehloOvplyvnenie = True
 while(prebehloOvplyvnenie):
+    if (postupVykonania != "2"):
+        postupVykonania = input("Jeden krok(1), Do konca(2): ")
     vytvorZoznamMoznychInstancii()
     akOvplyvniaPridajDoHaldy()
     prebehloOvplyvnenie = vykonajAkcieJednejInstanciePravidla()
     ovplyvniaPracovnuPamat.clear()
+    if (postupVykonania != "2"):
+        print("\nAKTUALNA PRACOVNA PAMAT:")
+        for fakt in pracovnaPamat:
+            print(fakt)
+        print("")
 
+print("FINALNY VYSLEDOK ZAPISANY V fakty_vystup.txt")
 file = open("fakty_vystup.txt", "w")
 for fakt in pracovnaPamat:
     file.write(fakt + "\n")
+file.close()
 
 
 
