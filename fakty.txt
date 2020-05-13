@@ -1,6 +1,8 @@
 Peter je rodic Jano
 Peter je rodic Vlado
 manzelia Peter Eva
+Stano je rodic Eva
+manzelia Stano Slavka
 Vlado je rodic Maria
 Vlado je rodic Viera
 muz Peter
@@ -9,3 +11,5 @@ muz Vlado
 zena Maria
 zena Viera
 zena Eva
+muz Stano
+zena Slavka

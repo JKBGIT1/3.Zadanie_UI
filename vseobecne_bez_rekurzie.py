@@ -223,6 +223,7 @@ def akOvplyvniaPridajDoHaldy():
         if(len(ovplyvnujuceAkcie) > 0):
             instanciaPravidla.vymenZaOvplyvnujuceAkcie(ovplyvnujuceAkcie) # nahradim vsetky akcie pravidla iba tymi, ktore ovplyvnia pracovnu pamat
             heapq.heappush(ovplyvniaPracovnuPamat, instanciaPravidla) # do min haldy vhodim instanciu pravidla uz iba s akciami, ktore ovplyvnia pracovnu pamat
+    instanciePravidla.clear()
 
 
 def vykonajAkciu(akcia):

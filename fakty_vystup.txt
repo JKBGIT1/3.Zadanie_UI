@@ -1,20 +1,27 @@
 Peter je rodic Jano
 Peter je rodic Vlado
 manzelia Peter Eva
+Stano je rodic Eva
+manzelia Stano Slavka
 Vlado je rodic Maria
 Vlado je rodic Viera
 muz Peter
 muz Jano
 muz Vlado
 zena Eva
+muz Stano
+zena Slavka
 Eva je rodic Jano
 Eva je rodic Vlado
+Slavka je rodic Eva
 Peter je otec Jano
 Peter je otec Vlado
 Vlado je otec Maria
 Vlado je otec Viera
+Stano je otec Eva
 Eva je matka Jano
 Eva je matka Vlado
+Slavka je matka Eva
 Jano a Vlado su surodenci
 Vlado a Jano su surodenci
 Maria a Viera su surodenci
